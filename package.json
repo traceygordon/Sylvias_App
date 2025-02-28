@@ -1,0 +1,27 @@
+{
+  "name": "sylvias_app",
+  "version": "1.0.0",
+  "description": "morning bus orders for school",
+  "main": "index.js",
+  "scripts": {
+    "start:dev": "nodemon server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/traceygordon/Sylvias_App.git"
+  },
+  "author": "Tracey Gordon",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/traceygordon/Sylvias_App/issues"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "nodemon": "^3.1.9",
+    "pg": "^8.11.3",
+    "uuid": "^9.0.1"
+  },
+  "homepage": "https://github.com/traceygordon/Sylvias_App#readme"
+}
