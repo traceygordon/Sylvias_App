@@ -17,7 +17,8 @@ const {
 async function dropTables() {
   try {
     await client.query(`
-        DROP TABLE IF EXISTS faculty;
+        DROP TABLE IF EXISTS greeter_buses;
+        DROP TABLE IF EXISTS greeters;
         DROP TABLE IF EXISTS buses;
         DROP TABLE IF EXISTS users;
       `);
@@ -31,7 +32,7 @@ async function createTables() {
     await client.query(`
         CREATE TABLE users (
           id SERIAL PRIMARY KEY,
-          name varchar(255) NOT NULL,
+          name varchar(255) UNIQUE NOT NULL,
           password varchar(255) NOT NULL,
           admin boolean DEFAULT false
         );
@@ -45,17 +46,17 @@ async function createTables() {
         CREATE TABLE greeters (
           id SERIAL PRIMARY KEY,
           name varchar(255) NOT NULL,
-          pickUps INTEGER REFERENCES buses(id),
+          pickUps INTEGER REFERENCES buses(id)
         );
 
         CREATE TABLE greeter_buses (
         id SERIAL PRIMARY KEY,
-        busId INTEGER REFERENCES bus(id),
-        greeterId INTEGER REFERENCES greeters(id),
+        busId INTEGER REFERENCES buses(id),
+        greeterId INTEGER REFERENCES greeters(id)
       );
       `);
   } catch (error) {
-    throw error;
+    console.log(error);
   }
 }
 
@@ -100,7 +101,7 @@ async function createInitialUsers() {
     }
   }
   
-async function createInitialGreeter() {
+async function createInitialGreeters() {
     try {
   
       await createGreeter({ 
@@ -110,10 +111,27 @@ async function createInitialGreeter() {
 
       await createGreeter({ 
         name: 'Ms. Jessica', 
-        pickUp: [2, 3]
+        pickUp: 2
       });
       
     } catch (error) {
       throw error;
     }
   }
+
+  async function rebuildDB() {
+    try {
+      client.connect();
+  
+      await dropTables();
+      await createTables();
+      await createInitialUsers();
+      await createInitialBuses();
+      await createInitialGreeters();
+    } catch (error) {
+      console.log("Error during rebuildDB")
+      throw error;
+    }
+  };
+
+  rebuildDB();
