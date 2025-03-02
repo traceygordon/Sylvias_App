@@ -35,7 +35,6 @@ async function createUser({ password, name }) {
 
 async function getAllUsers() {
   try {
-    console.log('get users')
     const { rows } = await client.query(`
           SELECT *
           FROM users;
