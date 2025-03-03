@@ -1,16 +1,16 @@
+require("dotenv").config();
 const express = require('express');
 const usersRouter = express.Router();
 const bcrypt = require('bcrypt');
-require("dotenv").config();
 const  JWT_SECRET = process.env.JWT || "shhh";
-
 const { 
-    createUser,
     getAllUsers,
+    getUserByName,
+    getUserById,
+    createUser,
     deleteUser
   } = require('../db');
-
-  const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 
   usersRouter.get('/', async (req, res, next) => {
     try {
@@ -22,20 +22,46 @@ const {
     } catch ({ name, message }) {
       next({ name, message });
     }
+  })
+
+  usersRouter.get('/', async (req, res, next) => {
+    try {
+      const user = await getUserByName();
+    
+      res.send({
+        user
+      });
+    } catch ({ name, message }) {
+      next({ name, message });
+    }
+  });
+
+  usersRouter.get('/:id', async (req, res, next) => {
+    const {id} = req.params
+
+    try {
+      const user = await getUserById(id);
+    
+      res.send({
+        user
+      });
+    } catch ({ name, message }) {
+      next({ name, message });
+    }
   });
 
   usersRouter.post('/register', async (req, res, next) => {
     const { name, password } = req.body;
   
     try {
-    //   const _user = await getUserByName(name);
+      const userCheck = await getUserByName(name);
     
-    //   if (_user) {
-    //     next({
-    //       name: 'UserExistsError',
-    //       message: 'A user by that username already exists'
-    //     });
-    //   }
+      if (userCheck) {
+        next({
+          name: 'UserExistsError',
+          message: 'A user by that username already exists'
+        });
+      }
   
       const user = await createUser({
         name,
@@ -58,9 +84,46 @@ const {
     } 
   });
 
-  usersRouter.delete('/:userId', async (req, res, next) => {
+  usersRouter.post('/login', async (req, res, next) => {
+    const { name, password } = req.body;
+
+    if (!name || !password) {
+      next({
+        name: "MissingCredentialsError",
+        message: "A name and password are required"
+      });
+    }
+  
     try {
-     const deleted = await deleteUser(req.params.userId);
+      const user = await getUserByName(name);
+      if ((await bcrypt.compare(password, user.password) == true)) {
+        const token = jwt.sign({ 
+          id: user.id, 
+          name
+        }, JWT_SECRET, {
+          expiresIn: '1w'
+        });
+  
+        res.send({ 
+          message: "you're logged in!",
+          token 
+        });
+      } else {
+        next({ 
+          name: 'IncorrectCredentialsError', 
+          message:'name or password is incorrect'
+        });
+      }
+    } catch(error) {
+      console.log(error);
+      next(error);
+    }
+  });
+
+  usersRouter.delete('/:id', async (req, res, next) => {
+    const { id } = req.params
+    try {
+     const deleted = await deleteUser(id);
       res.status(204);
   
     }

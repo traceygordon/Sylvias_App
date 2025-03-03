@@ -51,7 +51,7 @@ async function createTables() {
 
         CREATE TABLE greeter_buses (
         id SERIAL PRIMARY KEY,
-        busId INTEGER REFERENCES buses(id),
+        busId INTEGER REFERENCES buses(id) ON DELETE CASCADE,
         greeterId INTEGER REFERENCES greeters(id)
       );
       `);

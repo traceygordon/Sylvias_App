@@ -1,9 +1,10 @@
+require("dotenv").config();
 const express = require('express');
 const busesRouter = express.Router();
-require("dotenv").config();
-
+const { isLoggedIn } = require('./utils');
 const { 
   getAllBuses,
+  getBusById,
   createBus,
   deleteBus
 } = require('../db');
@@ -20,18 +21,32 @@ busesRouter.get('/', async (req, res, next) => {
     }
   });
 
-  busesRouter.post('/', async (req, res, next) => {
+  busesRouter.get('/:id', async (req, res, next) => {
+    const {id} = req.params
+
+    try {
+      const bus = await getBusById(id);
+    
+      res.send({
+        bus
+      });
+    } catch ({ name, message }) {
+      next({ name, message });
+    }
+  });
+
+  busesRouter.post('/', isLoggedIn, async (req, res, next) => {
     const { number, company } = req.body;
   
     try {
-    //   const _bus = await getBusByInfo(info);
+      const checkBus = await getBusById(id);
     
-    //   if (_bus) {
-    //     next({
-    //       name: 'BusExistsError',
-    //       message: 'That bus already exists'
-    //     });
-    //   }
+      if (checkBus) {
+        next({
+          name: 'BusExistsError',
+          message: 'That bus already exists'
+        });
+      }
   
       const bus = await createBus({
         number,
@@ -46,9 +61,10 @@ busesRouter.get('/', async (req, res, next) => {
     } 
   });
 
-  busesRouter.delete('/:busId', async (req, res, next) => {
+  busesRouter.delete('/:id', isLoggedIn, async (req, res, next) => {
+    const { id } = req.params
     try {
-     const deleted = await deleteBus(req.params.busId);
+     const deleted = await deleteBus(id);
       res.status(204);
   
     }

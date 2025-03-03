@@ -1,10 +1,12 @@
+require("dotenv").config();
 const express = require('express');
 const greetersRouter = express.Router();
-require("dotenv").config();
-
+const { isLoggedIn } = require('./utils');
 const { 
   getAllGreeters,
-  createGreeter
+  getGreeterById,
+  createGreeter,
+  deleteGreeter
 } = require('../db');
 
 greetersRouter.get('/', async (req, res, next) => {
@@ -19,18 +21,32 @@ greetersRouter.get('/', async (req, res, next) => {
     }
   });
 
-  greetersRouter.post('/', async (req, res, next) => {
+  greetersRouter.get('/:id', async (req, res, next) => {
+    const {id} = req.params
+
+    try {
+      const greeter = await getGreeterById(id);
+    
+      res.send({
+        greeter
+      });
+    } catch ({ name, message }) {
+      next({ name, message });
+    }
+  });
+
+  greetersRouter.post('/', isLoggedIn, async (req, res, next) => {
     const { name, pickUps } = req.body;
   
     try {
-    //   const _greeter = await getGreeterByName(name);
+      const checkGreeter = await getGreeterById(id);
     
-    //   if (_greeter) {
-    //     next({
-    //       name: 'GreeterExistsError',
-    //       message: 'A greeter by that name already exists'
-    //     });
-    //   }
+      if (checkGreeter) {
+        next({
+          name: 'GreeterExistsError',
+          message: 'A greeter by that name already exists'
+        });
+      }
   
       const greeter = await createGreeter({
         name,
@@ -45,14 +61,15 @@ greetersRouter.get('/', async (req, res, next) => {
     } 
   });
 
-  greetersRouter.delete('/:greeterId', async (req, res, next) => {
+  greetersRouter.delete('/:id', async (req, res, next) => {
+    const { id } = req.params
     try {
-     const deleted = await deleteGreeter(req.params.greeterId);
+     const deleted = await deleteGreeter(id);
       res.status(204);
   
     }
-    catch(ex){
-      next(ex);
+    catch ({ name, message }) {
+      next({ name, message });
     }
   });
   

@@ -1,8 +1,6 @@
-require("dotenv").config();
 const { Client } = require("pg");
 const bcrypt = require("bcrypt");
 const JWT_SECRET = process.env.JWT_SECRET;
-
 const client = new Client({
   connectionString:
     process.env.DATABASE_URL,
@@ -12,6 +10,9 @@ const client = new Client({
       : undefined,
 });
 
+require("dotenv").config();
+
+//***************USERS********************
 async function createUser({ password, name }) {
   try {
     const {
@@ -46,6 +47,48 @@ async function getAllUsers() {
   }
 }
 
+async function getUserByName(name) {
+  try {
+    const { rows: [ user ] } = await client.query(`
+      SELECT *
+      FROM users
+      WHERE name=$1
+    `, [ name ]);
+
+    if (!user) {
+      throw {
+        name: "UserNotFoundError",
+        message: "A user with that name does not exist"
+      }
+    }
+
+    return user;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getUserById(id) {
+  try {
+    const { rows: [ user ] } = await client.query(`
+      SELECT *
+      FROM users
+      WHERE id=${ id }
+    `);
+
+    if (!user) {
+      throw {
+        name: "UserNotFoundError",
+        message: "A user with that id does not exist"
+      }
+    }
+
+    return user;
+  } catch (error) {
+    throw error;
+  }
+}
+
 async function deleteUser(id) {
   try {
     await client.query(
@@ -59,6 +102,7 @@ async function deleteUser(id) {
   }
 }
 
+//***************BUSES********************
 async function createBus({ company, number }) {
   try {
     const {
@@ -91,6 +135,27 @@ async function getAllBuses() {
   }
 }
 
+async function getBusById(id) {
+  try {
+    const { rows: [ bus ] } = await client.query(`
+      SELECT *
+      FROM buses
+      WHERE id=${ id }
+    `);
+
+    if (!bus) {
+      throw {
+        name: "UserNotFoundError",
+        message: "A bus with that id does not exist"
+      }
+    }
+
+    return bus;
+  } catch (error) {
+    throw error;
+  }
+}
+
 async function deleteBus(id) {
     try {
         await client.query(
@@ -104,6 +169,7 @@ async function deleteBus(id) {
       }
 }
 
+//***************GREETERS********************
 async function createGreeter({ 
   name, 
   pickUps}) {
@@ -140,7 +206,28 @@ async function getAllGreeters() {
   }
 }
 
-async function deleteGreeter() {
+async function getGreeterById(id) {
+  try {
+    const { rows: [ greeter ] } = await client.query(`
+      SELECT *
+      FROM greeter
+      WHERE id=${ id }
+    `);
+
+    if (!greeter) {
+      throw {
+        name: "UserNotFoundError",
+        message: "A greeter with that id does not exist"
+      }
+    }
+
+    return greeter;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function deleteGreeter(id) {
     try {
         await client.query(
           `
@@ -158,13 +245,17 @@ module.exports = {
   createUser,
   // updateUser,
   getAllUsers,
+  getUserByName,
+  getUserById,
   deleteUser,
   createBus,
   // updateBus,
   getAllBuses,
+  getBusById,
   deleteBus,
   createGreeter,
   // updateGreeter,
   getAllGreeters,
-  deleteGreeter,
+  getGreeterById,
+  deleteGreeter
 };
