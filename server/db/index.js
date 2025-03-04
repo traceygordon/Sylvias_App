@@ -32,7 +32,20 @@ async function createUser({ password, name }) {
   }
 }
 
-// async function updateUser(){}
+async function updateUser(id, {name, password}) {
+  try {
+    const { rows: [ user ] } = await client.query(`
+      UPDATE users
+      SET name=$1, password=$2
+      WHERE id = $3
+      RETURNING *;
+    `, [name, password, id]);
+
+    return user;
+  } catch (error) {
+    throw error;
+  }
+}
 
 async function getAllUsers() {
   try {
@@ -120,7 +133,20 @@ async function createBus({ company, number }) {
   }
 }
 
-// async function updateBus(){}
+async function updateBus(id, {company, number}) {
+  try {
+    const { rows: [ bus ] } = await client.query(`
+      UPDATE buses
+      SET company=$1, number=$2
+      WHERE id = $3
+      RETURNING *;
+    `, [company, number, id]);
+
+    return bus;
+  } catch (error) {
+    throw error;
+  }
+}
 
 async function getAllBuses() {
   try {
@@ -191,7 +217,20 @@ async function createGreeter({
   }
 }
 
-// async function updateGreeter(){}
+async function updateGreeter(id, {name, pickUps}) {
+  try {
+    const { rows: [ greeter ] } = await client.query(`
+      UPDATE greeters
+      SET name=$1, pickUps=$2
+      WHERE id = $3
+      RETURNING *;
+    `, [name, pickUps, id]);
+
+    return greeter;
+  } catch (error) {
+    throw error;
+  }
+}
 
 async function getAllGreeters() {
   try {
@@ -210,7 +249,7 @@ async function getGreeterById(id) {
   try {
     const { rows: [ greeter ] } = await client.query(`
       SELECT *
-      FROM greeter
+      FROM greeters
       WHERE id=${ id }
     `);
 
@@ -243,18 +282,18 @@ async function deleteGreeter(id) {
 module.exports = {
   client,
   createUser,
-  // updateUser,
   getAllUsers,
   getUserByName,
   getUserById,
+  updateUser,
   deleteUser,
   createBus,
-  // updateBus,
+  updateBus,
   getAllBuses,
   getBusById,
   deleteBus,
   createGreeter,
-  // updateGreeter,
+  updateGreeter,
   getAllGreeters,
   getGreeterById,
   deleteGreeter

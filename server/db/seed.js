@@ -1,15 +1,15 @@
 const {
   client,
   createUser,
-//   updateUser,
+  updateUser,
   getAllUsers,
   deleteUser,
   createBus,
-//   updateBus,
+  updateBus,
   getAllBuses,
   deleteBus,
   createGreeter,
-//   updateGreeter,
+  updateGreeter,
   getAllGreeters,
   deleteGreeter,
 } = require("./index");

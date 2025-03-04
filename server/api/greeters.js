@@ -6,6 +6,7 @@ const {
   getAllGreeters,
   getGreeterById,
   createGreeter,
+  updateGreeter,
   deleteGreeter
 } = require('../db');
 
@@ -59,6 +60,37 @@ greetersRouter.get('/', async (req, res, next) => {
     } catch ({ name, message }) {
       next({ name, message });
     } 
+  });
+
+  greetersRouter.patch('/:id', async (req, res, next) => {
+    const { id } = req.params;
+    const { name, pickUps } = req.body;
+    const updateFields = {};
+
+    if (name) {
+      updateFields.name = name;
+    }
+  
+    if (pickUps) {
+      updateFields.pickUps = pickUps;
+    }  
+
+    try {
+      const originalGreeter = await getGreeterById(id);
+      
+      if (originalGreeter.id === +id) {
+        const updatedGreeter = await updateGreeter(id, updateFields);
+        res.send({ post: updatedGreeter })
+      } else {
+        next({
+          name: 'UnauthorizedUserError',
+          message: 'There is no greeter with that id'
+        })
+      }
+      }
+     catch ({ name, message }) {
+      next({ name, message });
+    }
   });
 
   greetersRouter.delete('/:id', async (req, res, next) => {

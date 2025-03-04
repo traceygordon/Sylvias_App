@@ -6,6 +6,7 @@ const {
   getAllBuses,
   getBusById,
   createBus,
+  updateBus,
   deleteBus
 } = require('../db');
 
@@ -61,6 +62,37 @@ busesRouter.get('/', async (req, res, next) => {
     } 
   });
 
+  busesRouter.patch('/:id', async (req, res, next) => {
+    const { id } = req.params;
+    const { company, number } = req.body;
+    const updateFields = {};
+
+    if (company) {
+      updateFields.company = company;
+    }
+  
+    if (number) {
+      updateFields.number = number;
+    }  
+
+    try {
+      const originalBus = await getBusById(id);
+      
+      if (originalBus.id === +id) {
+        const updatedBus = await updateBus(id, updateFields);
+        res.send({ post: updatedBus })
+      } else {
+        next({
+          name: 'UnauthorizedUserError',
+          message: 'There is no bus with that id'
+        })
+      }
+      }
+     catch ({ name, message }) {
+      next({ name, message });
+    }
+  });
+
   busesRouter.delete('/:id', isLoggedIn, async (req, res, next) => {
     const { id } = req.params
     try {
@@ -68,9 +100,9 @@ busesRouter.get('/', async (req, res, next) => {
       res.status(204);
   
     }
-    catch(ex){
-      next(ex);
-    }
+    catch ({ name, message }) {
+      next({ name, message });
+    } 
   });
   
   module.exports = busesRouter;

@@ -8,6 +8,7 @@ const {
     getUserByName,
     getUserById,
     createUser,
+    updateUser,
     deleteUser
   } = require('../db');
 const jwt = require('jsonwebtoken');
@@ -114,9 +115,56 @@ const jwt = require('jsonwebtoken');
           message:'name or password is incorrect'
         });
       }
-    } catch(error) {
-      console.log(error);
-      next(error);
+    } catch ({ name, message }) {
+      next({ name, message });
+    } 
+  });
+
+  usersRouter.patch('/:id', async (req, res, next) => {
+    const { id } = req.params;
+    const { name, password } = req.body;
+    const updateFields = {};
+
+    if (name) {
+      updateFields.name = name;
+    }
+  
+    if (password) {
+      updateFields.password = password;
+    }  
+
+    try {
+      usersRouter.patch('/:id', async (req, res, next) => {
+        const { id } = req.params;
+        const { name, password } = req.body;
+        const updateFields = {};
+    
+        if (name) {
+          updateFields.name = name;
+        }
+      
+        if (password) {
+          updateFields.password = password;
+        }  
+    
+        try {
+          const originalUser = await getUserById(id);
+      
+          if (originalUser.id === +id) {
+            const updatedUser = await updateUser(id, updateFields);
+            res.send({ post: updatedUser })
+          } else {
+            next({
+              name: 'UnauthorizedUserError',
+              message: 'You must be logged in to update your profile'
+            })
+          }
+        } catch ({ name, message }) {
+          next({ name, message });
+        }
+      });
+    } catch ({ name, message }) {
+      next({ name, message });
     }
   });
 
@@ -127,9 +175,9 @@ const jwt = require('jsonwebtoken');
       res.status(204);
   
     }
-    catch(ex){
-      next(ex);
-    }
+    catch ({ name, message }) {
+      next({ name, message });
+    } 
   });
 
 
