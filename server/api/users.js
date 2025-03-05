@@ -132,21 +132,6 @@ const jwt = require('jsonwebtoken');
     if (password) {
       updateFields.password = password;
     }  
-
-    try {
-      usersRouter.patch('/:id', async (req, res, next) => {
-        const { id } = req.params;
-        const { name, password } = req.body;
-        const updateFields = {};
-    
-        if (name) {
-          updateFields.name = name;
-        }
-      
-        if (password) {
-          updateFields.password = password;
-        }  
-    
         try {
           const originalUser = await getUserById(id);
       
@@ -163,10 +148,6 @@ const jwt = require('jsonwebtoken');
           next({ name, message });
         }
       });
-    } catch ({ name, message }) {
-      next({ name, message });
-    }
-  });
 
   usersRouter.delete('/:id', async (req, res, next) => {
     const { id } = req.params

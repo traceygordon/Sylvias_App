@@ -4,11 +4,15 @@ const express = require('express');
 const server = express();
 const path = require('path')
 const bodyParser = require('body-parser');
+const cors = require('cors')
 server.use(bodyParser.json());
-// const morgan = require('morgan');
-// server.use(morgan('dev'));
 
+server.use(cors({
+origin: "http://localhost:5173",
+method: "GET, POST, PUT, PATCH, DELETE",
+allowedHeaders: "Content-Type, Authorization"
 
+}))
 server.use(express.static(path.join(__dirname, "../client/dist")));
 
 const app = require('./api');
