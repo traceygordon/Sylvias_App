@@ -4,8 +4,10 @@
   "description": "morning bus orders for school",
   "main": "index.js",
   "scripts": {
-    "start:dev": "nodemon server",
-    "seed": "node ./server/db/seed.js"
+    "frontend": "cd client && npm run dev",
+    "backend": "nodemon server",
+    "seed": "node ./server/db/seed.js",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\""
   },
   "repository": {
     "type": "git",
@@ -18,6 +20,7 @@
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "concurrently": "^9.1.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.18.2",
